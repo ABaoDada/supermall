@@ -1,0 +1,52 @@
+<template>
+  <div id="home">
+    <nav-bar class="home-nav">
+      <div slot="center">购物街</div>
+    </nav-bar>
+    <home-swiper :banners="banners"></home-swiper>
+    <recommend-view :recommend="recommends"></recommend-view>
+  </div>
+</template>
+
+<script>
+import NavBar from 'components/common/navbar/NavBar';
+import HomeSwiper from './childComps/HomeSwiper'
+import RecommendView from './childComps/RecommendView'
+import { getHomeMultidata } from 'network/home'
+
+
+
+export default {
+  name: 'Home',
+  data () {
+    return {
+      banners: [],
+      recommends: []
+    }
+  },
+  components: {
+    NavBar,
+    HomeSwiper,
+    RecommendView
+  },
+  created () {
+
+    //1.请求多个数据
+    //异步操作
+    getHomeMultidata().then(res => {
+      console.log(res);
+      this.banners = res.data.banner.list
+      this.recommends = res.data.recommend.list
+      //this:  箭头函数的this指向外层的作用域
+      //       而created的this指向当前组件实例，即Home实例
+    })
+  }
+}
+</script>
+
+<style scoped>
+.home-nav {
+  background-color: var(--color-tint);
+  color: #fff;
+}
+</style>
