@@ -18,7 +18,7 @@
     </scroll>
     <!-- 返回顶部 -->
     <!-- .native:让组件也能监听事件 -->
-    <back-top @click.native="backClick" v-show="isShowBackTop"></back-top>
+    <back-top @click.native="backTop" v-show="isShowBackTop"></back-top>
   </div>
 </template>
 
@@ -39,6 +39,8 @@ import { getHomeMultidata, getHomeGoods } from "network/home";
 //防抖
 import { debounce } from "../../common/utils";
 import { itemListenerMixin } from "../../common/mixin"
+//常量
+import { BACKTOP_DISTANCE } from "../../common/const"
 
 
 export default {
@@ -141,7 +143,7 @@ export default {
       // this.currentType = Object.keys(this.goods)[index]
     },
 
-    backClick () {
+    backTop () {
       //  this.$refs.scroll : scroll组件对象
       //  this.$refs.scroll.scroll  :  scroll组件对象data里的的scroll
       //scrollTo(x, y,移动时间（毫秒）) 自定义方法在Scroll.vue
@@ -151,8 +153,9 @@ export default {
     contentScroll (position) {
       // console.log(position);
       //1.判断返回顶部是否显示
-      // position.y <= -1000 ? this.isShowBackTop = true : this.isShowBackTop = false
-      this.isShowBackTop = position.y <= -1000;
+      // -position.y >= 1000 ? this.isShowBackTop = true : this.isShowBackTop = false
+      //BACKTOP_DISTANCE :1000
+      this.isShowBackTop = -position.y >= BACKTOP_DISTANCE;
 
       //2.决定tabControl是否吸顶（position:fixed）
       // position.y <= -(this.tabOffsetTop) ? this.isTabFixed = true : this.isTabFixed = false

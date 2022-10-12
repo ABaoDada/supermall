@@ -10,7 +10,8 @@
       <detail-comment-info :comment-info="commentInfo" ref="comment"></detail-comment-info>
       <goods-list :goods="recommends" ref="recommend"></goods-list>
     </scroll>
-
+    <detail-bottom-bar @addToCart="addToCart"></detail-bottom-bar>
+    <back-top @click.native="backTop" v-show="isShowBackTop"></back-top>
   </div>
 </template>
 
@@ -22,16 +23,20 @@ import DetailShopInfo from './childComps/DetailShopInfo'
 import DetailGoodsInfo from './childComps/DetailGoodsInfo'
 import DetailParamInfo from './childComps/DetailParamInfo'
 import DetailCommentInfo from './childComps/DetailCommentInfo'
+import DetailBottomBar from './childComps/DetailBottomBar'
+
 
 import Scroll from "components/common/scroll/Scroll"
 import GoodsList from "components/content/goods/GoodsList"
+import BackTop from 'components/content/backTop/BackTop'
 
 import { getDetail, Goods, Shop, GoodsParam, getRecommend } from "network/detail"
 
 import { itemListenerMixin } from "../../common/mixin"
 //防抖
 import { debounce } from "../../common/utils";
-
+//常量
+import { BACKTOP_DISTANCE } from "../../common/const"
 
 
 export default {
@@ -45,7 +50,9 @@ export default {
     DetailGoodsInfo,
     DetailParamInfo,
     DetailCommentInfo,
-    GoodsList
+    GoodsList,
+    DetailBottomBar,
+    BackTop,
   },
   data () {
     return {
@@ -57,9 +64,10 @@ export default {
       parmInfo: {},
       commentInfo: {},
       recommends: [],
-      themeTopYs: [0, 1000, 2000, 3000],
+      themeTopYs: [],
       getThemeTopY: null,
-      currentIndex: 0
+      currentIndex: 0,
+      isShowBackTop: false,
     }
   },
   mixins: [itemListenerMixin],
@@ -69,7 +77,7 @@ export default {
 
     //2.根据iid请求详情数据
     getDetail(this.iid).then(res => {
-      // console.log(res);
+      console.log(res);
 
       const data = res.result
       //1.获取顶部的图片轮播数据
@@ -132,7 +140,7 @@ export default {
       this.themeTopYs.push(this.$refs.comment.$el.offsetTop)
       this.themeTopYs.push(this.$refs.recommend.$el.offsetTop)
       this.themeTopYs.push(Number.MAX_VALUE)
-      console.log(this.themeTopYs);
+      // console.log(this.themeTopYs);
     }, 500)
 
 
@@ -152,8 +160,6 @@ export default {
       const refresh = debounce(this.$refs.scroll.refresh, 200);
       refresh();
       this.getThemeTopY()
-
-
     },
     titleClick (index) {
       this.$refs.scroll.scrollTo(0, -this.themeTopYs[index], 100)
@@ -171,13 +177,49 @@ export default {
       let length = this.themeTopYs.length
       for (let i = 0; i < length - 1; i++) {
         //this.currentIndex != i  用来判断当前位置是否还在原来的区间，避免重复打印
-        if (this.currentIndex != i && (positionY >= this.themeTopYs[i] && positionY <= this.themeTopYs[i + 1]))
-        // if (this.currentIndex != i && ((i < length - 1 && positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i + 1]) || (i == length - 1 && positionY >= this.themeTopYs[i]))) {
-        //   this.currentIndex = 1
-        //   this.$refs.nav.currentIndex = this.currentIndex
-        // }
+        if (this.currentIndex != i && (positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i + 1])) {
+          this.currentIndex = i
+          this.$refs.nav.currentIndex = this.currentIndex
+        }
+        //   // if (this.currentIndex != i && ((i < length - 1 && positionY >= this.themeTopYs[i] && positionY < this.themeTopYs[i + 1]) || (i == length - 1 && positionY >= this.themeTopYs[i]))) {
+        //   //   this.currentIndex = i
+        //   //   this.$refs.nav.currentIndex = this.currentIndex
+        //   // }
       }
+      // for (let i = length; i > 0; i--) {
+      //   if (positionY >= this.themeTopYs[i]) {
+      //     this.currentIndex = i
+      //     this.$refs.nav.currentIndex = this.currentIndex
+      //     break
+      //   }
+      // }
+
+      //3.是否显示回到顶部
+
+      this.isShowBackTop = -position.y > BACKTOP_DISTANCE
+    },
+
+    backTop () {
+      //  this.$refs.scroll : scroll组件对象
+      //  this.$refs.scroll.scroll  :  scroll组件对象data里的的scroll
+      //scrollTo(x, y,移动时间（毫秒）) 自定义方法在Scroll.vue
+      this.$refs.scroll.scrollTo(0, 0);
+    },
+
+    //监听购物车点击
+    addToCart () {
+      // console.log("uhbabxua");
+      //1.获取购物车中需要展示的信息
+      const product = {}
+      product.image = this.topImages[0]
+      product.title = this.goods.title
+      product.desc = this.goods.desc
+      product.price = this.goods.lowNowPrice
+      product.iid = this.iid
+
+      //2.将商品添加到购物车里
     }
+
   }
 }
 </script>
@@ -197,7 +239,7 @@ export default {
 }
 
 .content {
-  height: calc(100% - 44px);
+  height: calc(100% - 44px - 49px);
   overflow: hidden;
 }
 </style>
