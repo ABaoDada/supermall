@@ -19,23 +19,38 @@ const routes = [
   },
   {
     path: '/home',
-    component: Home
+    component: Home,
+    meta: {
+      title: 'Home',
+    }
   },
   {
     path: '/cart',
-    component: Cart
+    component: Cart,
+    meta: {
+      title: 'Cart',
+    }
   },
   {
     path: '/category',
-    component: Category
+    component: Category,
+    meta: {
+      title: 'Category',
+    }
   },
   {
     path: '/profile',
-    component: Profile
+    component: Profile,
+    meta: {
+      title: 'Profile'
+    }
   },
   {
     path: '/detail/:iid',
-    component: Detail
+    component: Detail,
+    meta: {
+      title: 'Detail'
+    }
   },
 ]
 

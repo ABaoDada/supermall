@@ -3,7 +3,10 @@
     <keep-alive exclude="Detail">
       <router-view></router-view>
     </keep-alive>
-    <main-tab-bar></main-tab-bar>
+    <!-- 进入详情页时，底部导航栏不显示 -->
+    <main-tab-bar v-show="$route.meta.title !== 'Detail'"></main-tab-bar>
+
+    <!-- <main-tab-bar ></main-tab-bar> -->
   </div>
 </template>
 
